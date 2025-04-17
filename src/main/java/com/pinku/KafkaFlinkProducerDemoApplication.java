@@ -21,6 +21,18 @@ public class KafkaFlinkProducerDemoApplication  {
 				FlinkKafkaProducer.Semantic.EXACTLY_ONCE
 		);
 
+		/*
+
+			env.addSource(new MongoSource())
+				.name("MongoDB Source")
+				.keyBy(Employee::getId)
+				.process(new DuplicationFunction())
+				.addSink(kafkaProducer)
+				.name("Kafka Sink");
+
+		 */
+
+
 		DataStream<Employee>  employeeDataStream = env.addSource(new MongoSource())
 				.name("MongoDB Source");
 		//Duplicate logic
