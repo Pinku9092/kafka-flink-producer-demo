@@ -1,6 +1,7 @@
 package com.pinku;
 
 import com.pinku.pojos.Employee;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
@@ -20,9 +21,17 @@ public class KafkaFlinkProducerDemoApplication  {
 				FlinkKafkaProducer.Semantic.EXACTLY_ONCE
 		);
 
+		DataStream<Employee>  employeeDataStream = env.addSource(new MongoSource())
+				.name("MongoDB Source");
+		//Duplicate logic
+		DataStream<Employee> uniqueDataStream = employeeDataStream
+				.keyBy(Employee::getId)
+						.process(new DuplicationFunction());
+
+
 		
-		env.addSource(new MongoSource())
-				.name("MongoDB Source")
+		// Send the data to Kafka
+		uniqueDataStream
 				.addSink(kafkaProducer)
 				.name("Kafka Sink");
 		 env.execute("Mongo to Kafka Flink Producer job");
